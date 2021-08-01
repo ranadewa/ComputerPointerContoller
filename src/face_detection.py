@@ -1,13 +1,12 @@
 '''
-This is a sample class for a model. You may choose to use it as-is or make any changes to it.
-This has been provided just to give you an idea of how to structure your model class.
+Inherits from the Model class to specialse for face detection
 '''
-
 import os
-from openvino.inference_engine import IENetwork, IECore 
+import cv2
 import numpy as np
+from openvino.inference_engine import IENetwork, IECore 
 
-class Model:
+class Face_Detection():
     '''
     Class for the Face Detection Model.
     '''
@@ -65,13 +64,28 @@ class Model:
         Before feeding the data into the model for inference,
         you might have to preprocess it. This function is where you can do that.
         '''
+        height = 384
+        width = 672
+        image = cv2.resize(image, (width, height))
         image = image.transpose((2,0,1))
         image = np.expand_dims(image, axis=0)
         return image
 
-    def preprocess_output(self, outputs):
+    def preprocess_output(self, outputs, height, width):
         '''
         Before feeding the output of this model to the next model,
         you might have to preprocess the output. This function is where you can do that.
         '''
-        pass
+        bounding_boxes = outputs[self.output_blob][0,0,:,:]
+        scaled_boxes =  []
+
+        for box in bounding_boxes:
+            if(box[2] > 0.5):
+                scaled_boxes.append(((int(box[3] * width), int(box[4] * height)),
+                 (int(box[5] * width), int(box[6] * height))))
+
+        
+        return scaled_boxes
+
+
+
