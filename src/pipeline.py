@@ -2,6 +2,9 @@ import argparse
 import cv2
 from input_feeder import InputFeeder
 from face_detection import  Face_Detection
+from head_pose_estimation import Head_Pose_Estimation
+from facial_landmarks_detection import Facial_Landmarks_Detection
+from gaze_estimation import Gaze_Estimation
 
 def get_args():
     '''
@@ -26,43 +29,113 @@ def get_args():
 
     return args
 
-def track_gaze(args):
-    device = args.d
-    extension = args.e
-    print('file: {}, device: {}'.format(args.i, args.d))
+def get_face_coordinates(image, width, height):
+    processed_image = fd_model.preprocess_input(image)
+    fdm_out = fd_model.predict(processed_image)
+    fdm_preprocessed_out = fd_model.preprocess_output(fdm_out, height, width)
 
-    feed=InputFeeder(input_type='video', input_file=args.i)
+    if(len(fdm_preprocessed_out) > 0):
+        return fdm_preprocessed_out[0]
+    else:
+        None
+
+def get_head_pose_estimate(cropped_face):
+    hpe_preprocessed_in = hpe_model.preprocess_input(cropped_face)
+    hpe_out = hpe_model.predict(hpe_preprocessed_in)
+    return hpe_model.preprocess_output(hpe_out)
+
+def get_facial_land_marks(cropped_face, width, height):
+    fld_preprocessed_in = fld_model.preprocess_input(cropped_face)
+    fld_out = fld_model.predict(fld_preprocessed_in)
+    return  fld_model.preprocess_output(fld_out, width, height)
+
+def extract_eyes(land_marks, face, offset):
+    left_eye_min = (int(land_marks[0]) - offset, int(land_marks[1]) - offset)
+    left_eye_max = (int(land_marks[0]) + offset, int(land_marks[1]) + offset)
+
+    right_eye_min = (int(land_marks[2]) - offset, int(land_marks[3]) - offset)
+    right_eye_max = (int(land_marks[2]) + offset, int(land_marks[3]) + offset)
+
+
+    left_eye = face[left_eye_min[1]: left_eye_max[1], left_eye_min[0]: left_eye_max[0]]
+    right_eye = face[right_eye_min[1]: right_eye_max[1], right_eye_min[0]: right_eye_max[0]]
+
+    return left_eye, right_eye
+
+def track_gaze(file):
+
+    feed=InputFeeder(input_type='video', input_file=file)
     feed.load_data()
     (width, height) = feed.dimensions()
-
-    fd_model = '../models/intel/face-detection-adas-0001/FP16/face-detection-adas-0001.xml'
-    face_detection_model = Face_Detection(model_name=fd_model, device = device, extensions=extension)
-    face_detection_model.load_model()
-
-    hpe_model = '../models/intel/head-pose-estimation-adas-0001/FP16/head-pose-estimation-adas-0001.xml'
-
+    fps = feed.fps()
+    
     CODEC = cv2.VideoWriter_fourcc(*'DIVX')
-    out = cv2.VideoWriter('out.avi', CODEC, 30, (width,height))
+    out = cv2.VideoWriter('out.avi', CODEC, fps, (width,height))
 
     for batch in feed.next_batch():
         if(batch is None):
             break
         
-        processed_image = face_detection_model.preprocess_input(batch)
-        fdm_out = face_detection_model.predict(processed_image)
-        fdm_preprocessed_out = face_detection_model.preprocess_output(fdm_out, height, width)
+        face_coordinates = get_face_coordinates(batch, width, height)
 
-        if(len(fdm_preprocessed_out) > 0):
-            bottom, top = fdm_preprocessed_out[0]
-            cv2.rectangle(batch, bottom, top, (255,0,), 5)
+        if(face_coordinates != None):
+            (x_min,y_min), (x_max, y_max) = face_coordinates
+            cropped_face = batch[y_min:y_max, x_min: x_max]
+
+            hpe_preprocessed_out = get_head_pose_estimate(cropped_face)
+
+            fld_preprocessed_out = get_facial_land_marks(cropped_face, (x_max - x_min), (y_max - y_min))
+
+            off_set = 30
+            left_eye, right_eye = extract_eyes(fld_preprocessed_out, cropped_face, off_set)
+            
+            #cv2.imshow("cropped", right_eye)
+            #cv2.waitKey(0)
+            
+            expected_shape = (off_set * 2, off_set * 2, 3)
+            if(left_eye.shape == expected_shape and right_eye.shape == expected_shape):
+                ge_preproccessed_in = ge_model.preprocess_input(left_eye, right_eye, hpe_preprocessed_out)
+                ge_out  = ge_model.predict(ge_preproccessed_in)
+                print(ge_out)
+
+            #cv2.rectangle(batch, (x_min,y_min), (x_max, y_max), (255,0,), 5)
             out.write(batch)
 
     feed.close()
     out.release()
-    
+
+fd_model = None
+hpe_model = None 
+fld_model = None
+ge_model = None
+
 def main():
     args = get_args()
-    track_gaze(args)
+    device = args.d
+    extension = args.e
+
+    global fd_model
+    global hpe_model
+    global fld_model
+    global ge_model
+
+    face_detection_model = '../models/intel/face-detection-adas-0001/FP16/face-detection-adas-0001.xml'
+    fd_model = Face_Detection(model_name=face_detection_model, device = device, extensions=extension)
+    fd_model.load_model()
+
+    head_pose_estimation_model = '../models/intel/head-pose-estimation-adas-0001/FP16/head-pose-estimation-adas-0001.xml'
+    hpe_model = Head_Pose_Estimation(model_name=head_pose_estimation_model, device=device, extensions=extension)
+    hpe_model.load_model()
+
+    facial_landmark_detection_model = '../models/intel/landmarks-regression-retail-0009/FP16/landmarks-regression-retail-0009.xml'
+    fld_model = Facial_Landmarks_Detection(model_name=facial_landmark_detection_model, device=device, extensions=extension)
+    fld_model.load_model()
+
+    gaze_estimation_model = '../models/intel/gaze-estimation-adas-0002/FP16/gaze-estimation-adas-0002.xml'
+    ge_model = Gaze_Estimation(model_name=gaze_estimation_model, device=device, extensions=extension)
+    ge_model.load_model()
+
+    track_gaze(args.i)
 
 
 if __name__ == "__main__":

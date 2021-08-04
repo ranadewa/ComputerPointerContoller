@@ -3,7 +3,7 @@ import cv2
 import numpy as np
 from openvino.inference_engine import IENetwork, IECore 
 
-class Face_Detection():
+class Head_Pose_Estimation():
     '''
     Class for the Face Detection Model.
     '''
@@ -44,7 +44,6 @@ class Face_Detection():
 
         # Get the input layer
         self.input_blob = next(iter(self.network.inputs))
-        self.output_blob = next(iter(self.network.outputs))
 
     def predict(self, image):
         '''
@@ -61,28 +60,23 @@ class Face_Detection():
         Before feeding the data into the model for inference,
         you might have to preprocess it. This function is where you can do that.
         '''
-        height = 384
-        width = 672
+        height = 60
+        width = 60
         image = cv2.resize(image, (width, height))
         image = image.transpose((2,0,1))
         image = np.expand_dims(image, axis=0)
         return image
 
-    def preprocess_output(self, outputs, height, width):
+    def preprocess_output(self, outputs):
         '''
         Before feeding the output of this model to the next model,
         you might have to preprocess the output. This function is where you can do that.
         '''
-        bounding_boxes = outputs[self.output_blob][0,0,:,:]
-        scaled_boxes =  []
-
-        for box in bounding_boxes:
-            if(box[2] > 0.5):
-                scaled_boxes.append(((int(box[3] * width), int(box[4] * height)),
-                 (int(box[5] * width), int(box[6] * height))))
-
-        
-        return scaled_boxes
+        yaw = outputs['angle_y_fc'][0][0]
+        pitch = outputs['angle_p_fc'][0][0]
+        roll = outputs['angle_r_fc'][0][0]
+    
+        return (yaw, pitch, roll)
 
 
 

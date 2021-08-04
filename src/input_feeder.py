@@ -52,3 +52,6 @@ class InputFeeder:
         height = int(self.cap.get(4))
         return (width, height)
 
+    def fps(self):
+        return int(self.cap.get(cv2.CAP_PROP_FPS))
+
