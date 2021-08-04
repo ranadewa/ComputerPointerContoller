@@ -6,8 +6,7 @@ from face_detection import  Face_Detection
 from head_pose_estimation import Head_Pose_Estimation
 from facial_landmarks_detection import Facial_Landmarks_Detection
 from gaze_estimation import Gaze_Estimation
-from debug_utils import draw_axes, extract_eye_centers
-import time
+from debug_utils import draw_axes, draw_gaze_vector
 
 
 def get_args():
@@ -19,6 +18,8 @@ def get_args():
     device = "The device name, if not 'CPU'"
     extension = "CPU extension if any"
     file = "Input file"
+    setDebug = "set debug"
+
 
     # -- Add required and optional groups
     parser._action_groups.pop()
@@ -29,6 +30,7 @@ def get_args():
     optional.add_argument("-i", help=file, default='../bin/demo.mp4')
     optional.add_argument("-d", help=device, default='CPU')
     optional.add_argument("-e", help=extension)
+    optional.add_argument("-s", help=setDebug, default=0)
     args = parser.parse_args()
 
     return args
@@ -66,19 +68,24 @@ def extract_eyes(land_marks, face, offset):
 
     return left_eye, right_eye
 
+def get_gaze_vector(left_eye, right_eye, yaw_pitch_roll):
+    ge_preproccessed_in = ge_model.preprocess_input(left_eye, right_eye, yaw_pitch_roll)
+    ge_out  = ge_model.predict(ge_preproccessed_in)
+    ge_preprocessed_out = ge_model.preprocess_output(ge_out)
+    return ge_preprocessed_out[:2]
 
-def track_gaze(file):
+def track_gaze(file, debug):
 
     feed=InputFeeder(input_type='video', input_file=file)
     feed.load_data()
     (width, height) = feed.dimensions()
     fps = feed.fps()
-    print('fps: {}'.format(fps))
 
     mouse_controller = MouseController('low', 'fast')
     
-    CODEC = cv2.VideoWriter_fourcc(*'DIVX')
-    out = cv2.VideoWriter('out.avi', CODEC, 3, (width,height)) # TODO: Why is this slow?
+    if(debug):
+        CODEC = cv2.VideoWriter_fourcc(*'DIVX')
+        out = cv2.VideoWriter('out.avi', CODEC, fps, (width,height))
 
     for batch in feed.next_batch():
         if(batch is None):
@@ -90,40 +97,34 @@ def track_gaze(file):
             (x_min,y_min), (x_max, y_max) = face_coordinates
             cropped_face = batch[y_min:y_max, x_min: x_max]
 
-            hpe_preprocessed_out = get_head_pose_estimate(cropped_face)
-            (yaw, pitch, roll) = hpe_preprocessed_out
+            (yaw, pitch, roll) = get_head_pose_estimate(cropped_face)
 
             fld_preprocessed_out = get_facial_land_marks(cropped_face, (x_max - x_min), (y_max - y_min))
 
             off_set = 30
             left_eye, right_eye = extract_eyes(fld_preprocessed_out, cropped_face, off_set)
-            
-            #cv2.imshow("cropped", right_eye)
-            #cv2.waitKey(0)
-            
-            center_of_face = (x_min + cropped_face.shape[1]/2, y_min  + cropped_face.shape[0]/2, 0)
-            draw_axes(batch, center_of_face, yaw, pitch, roll, 50, 950)
+
+            if(debug):
+                center_of_face = (x_min + cropped_face.shape[1]/2, y_min  + cropped_face.shape[0]/2, 0)
+                batch = draw_axes(batch, center_of_face, yaw, pitch, roll, 50, 950)
 
             expected_shape = (off_set * 2, off_set * 2, 3)
             if(left_eye.shape == expected_shape and right_eye.shape == expected_shape):
-                ge_preproccessed_in = ge_model.preprocess_input(left_eye, right_eye, hpe_preprocessed_out)
-                ge_out  = ge_model.predict(ge_preproccessed_in)
-                ge_preprocessed_out = ge_model.preprocess_output(ge_out)
-                print(ge_preprocessed_out)
 
-                x, y = ge_preprocessed_out[:2]
-                # mouse_controller.move(x, y)
+                x, y = get_gaze_vector(left_eye, right_eye, (yaw, pitch, roll))
 
-                left_eye_center, right_eye_center = extract_eye_centers(fld_preprocessed_out, cropped_face.shape[0], cropped_face.shape[1])
+                if(not(debug)):
+                    mouse_controller.move(x, y)
 
-                batch = cv2.line(batch, left_eye_center, (int(left_eye_center[0]+x*200), int(left_eye_center[1]-y*200)), (0,120,120), 2)
-                batch = cv2.line(batch, right_eye_center, (int(right_eye_center[0]+x*200), int(right_eye_center[1]-y*200)), (0,120,120), 2)
+            if(debug):
+                batch = draw_gaze_vector(fld_preprocessed_out, (x_min, y_min), (x,y), batch)
 
-            #cv2.rectangle(batch, (x_min,y_min), (x_max, y_max), (255,0,), 5)
+        if(debug):
             out.write(batch)
 
     feed.close()
-    out.release()
+    if(debug):
+        out.release()
 
 fd_model = None
 hpe_model = None 
@@ -156,7 +157,13 @@ def main():
     ge_model = Gaze_Estimation(model_name=gaze_estimation_model, device=device, extensions=extension)
     ge_model.load_model()
 
-    track_gaze(args.i)
+    print('Arguments: device: {}, extension: {}, file: {}, setDebug:{}'.format(device, extension, args.i, args.s))
+
+    setDebug = False
+    if(args.s == '1'):
+        setDebug = True
+
+    track_gaze(args.i, setDebug)
 
 
 if __name__ == "__main__":

@@ -2,13 +2,6 @@ import numpy as np
 import math
 import cv2
 
-def extract_eye_centers(land_marks, width, height):
-
-    left_eye = (int(land_marks[0] + width/2), int(land_marks[1] + height/2))
-    right_eye = (int(land_marks[2]+ width/2), int(land_marks[3]+ height/2))
-
-    return left_eye, right_eye
-
 # Reference: https://knowledge.udacity.com/questions/171017
 def draw_axes(frame, center_of_face, yaw, pitch, roll, scale, focal_length):
     yaw *= np.pi / 180.0
@@ -24,7 +17,7 @@ def draw_axes(frame, center_of_face, yaw, pitch, roll, scale, focal_length):
                    [math.sin(yaw), 0, math.cos(yaw)]])
     Rz = np.array([[math.cos(roll), -math.sin(roll), 0],
                    [math.sin(roll), math.cos(roll), 0],
-                   [0, 0, 1]])
+                [0, 0, 1]])
     # R = np.dot(Rz, Ry, Rx)
     # ref: https://www.learnopencv.com/rotation-matrix-to-euler-angles/
     # R = np.dot(Rz, np.dot(Ry, Rx))
@@ -69,3 +62,18 @@ def build_camera_matrix(center_of_face, focal_length):
     camera_matrix[1][2] = cy
     camera_matrix[2][2] = 1
     return camera_matrix
+
+def draw_gaze_vector(fld_preprocessed_out, face_position, gaze_coordinates, frame):
+    x_min, y_min = face_position
+    x, y = gaze_coordinates
+    left_eye_center, right_eye_center = extract_eye_centers(fld_preprocessed_out,  x_min , y_min)
+    frame = cv2.line(frame, left_eye_center, (int(left_eye_center[0]+x*200), int(left_eye_center[1]-y*200)), (0,120,120), 2)
+    frame = cv2.line(frame, right_eye_center, (int(right_eye_center[0]+x*200), int(right_eye_center[1]-y*200)), (0,120,120), 2)
+    return frame
+    
+def extract_eye_centers(land_marks, width, height):
+
+    left_eye = (int(land_marks[0] + width), int(land_marks[1] + height))
+    right_eye = (int(land_marks[2]+ width), int(land_marks[3]+ height))
+
+    return left_eye, right_eye
