@@ -1,10 +1,14 @@
 import argparse
 import cv2
 from input_feeder import InputFeeder
+from mouse_controller import MouseController
 from face_detection import  Face_Detection
 from head_pose_estimation import Head_Pose_Estimation
 from facial_landmarks_detection import Facial_Landmarks_Detection
 from gaze_estimation import Gaze_Estimation
+from debug_utils import draw_axes, extract_eye_centers
+import time
+
 
 def get_args():
     '''
@@ -62,15 +66,19 @@ def extract_eyes(land_marks, face, offset):
 
     return left_eye, right_eye
 
+
 def track_gaze(file):
 
     feed=InputFeeder(input_type='video', input_file=file)
     feed.load_data()
     (width, height) = feed.dimensions()
     fps = feed.fps()
+    print('fps: {}'.format(fps))
+
+    mouse_controller = MouseController('low', 'fast')
     
     CODEC = cv2.VideoWriter_fourcc(*'DIVX')
-    out = cv2.VideoWriter('out.avi', CODEC, fps, (width,height))
+    out = cv2.VideoWriter('out.avi', CODEC, 3, (width,height)) # TODO: Why is this slow?
 
     for batch in feed.next_batch():
         if(batch is None):
@@ -83,6 +91,7 @@ def track_gaze(file):
             cropped_face = batch[y_min:y_max, x_min: x_max]
 
             hpe_preprocessed_out = get_head_pose_estimate(cropped_face)
+            (yaw, pitch, roll) = hpe_preprocessed_out
 
             fld_preprocessed_out = get_facial_land_marks(cropped_face, (x_max - x_min), (y_max - y_min))
 
@@ -92,11 +101,23 @@ def track_gaze(file):
             #cv2.imshow("cropped", right_eye)
             #cv2.waitKey(0)
             
+            center_of_face = (x_min + cropped_face.shape[1]/2, y_min  + cropped_face.shape[0]/2, 0)
+            draw_axes(batch, center_of_face, yaw, pitch, roll, 50, 950)
+
             expected_shape = (off_set * 2, off_set * 2, 3)
             if(left_eye.shape == expected_shape and right_eye.shape == expected_shape):
                 ge_preproccessed_in = ge_model.preprocess_input(left_eye, right_eye, hpe_preprocessed_out)
                 ge_out  = ge_model.predict(ge_preproccessed_in)
-                print(ge_out)
+                ge_preprocessed_out = ge_model.preprocess_output(ge_out)
+                print(ge_preprocessed_out)
+
+                x, y = ge_preprocessed_out[:2]
+                # mouse_controller.move(x, y)
+
+                left_eye_center, right_eye_center = extract_eye_centers(fld_preprocessed_out, cropped_face.shape[0], cropped_face.shape[1])
+
+                batch = cv2.line(batch, left_eye_center, (int(left_eye_center[0]+x*200), int(left_eye_center[1]-y*200)), (0,120,120), 2)
+                batch = cv2.line(batch, right_eye_center, (int(right_eye_center[0]+x*200), int(right_eye_center[1]-y*200)), (0,120,120), 2)
 
             #cv2.rectangle(batch, (x_min,y_min), (x_max, y_max), (255,0,), 5)
             out.write(batch)
@@ -140,3 +161,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+    

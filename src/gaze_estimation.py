@@ -89,18 +89,12 @@ class Gaze_Estimation():
 
         return left, right
 
-    def preprocess_output(self, outputs, width, height):
+    def preprocess_output(self, outputs):
         '''
         Before feeding the output of this model to the next model,
         you might have to preprocess the output. This function is where you can do that.
         '''
-        out = outputs[self.output_blob][0,:,0,0]
-
-        for index, _ in enumerate(out):
-            if( index % 2 == 0):
-                out[index] = out[index] * width
-            else:
-                out[index] = out[index] * height
+        out = outputs[self.output_blob][0,:]
 
         return out
 
