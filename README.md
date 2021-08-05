@@ -14,7 +14,7 @@
 | [Gase Estimation](https://docs.openvinotoolkit.org/latest/omz_models_model_gaze_estimation_adas_0002.html) | Blob, name: left_eye_image, shape: 1, 3, 60, 60 </br> Blob, name: right_eye_image, shape: 1, 3, 60, 60 </br> Blob, name: head_pose_angles, shape: 1, 3 in the format B, C | The net output is a blob with name gaze_vector and the shape: 1, 3, containing Cartesian coordinates of gaze direction vector. Please note that the output vector is not normalizes and has non-unit length.|
 #### Downloading the models
 ```
-python D:\Programs\openvino_2021.1.110\deployment_tools\tools\model_downloader\downloader.py --name head-pose-estimation-adas-0001
+python D:\Programs\openvino_2021.1.110\deployment_tools\tools\model_downloader\downloader.py --name head-pose-estimation-adas-0001v
 python D:\Programs\openvino_2021.1.110\deployment_tools\tools\model_downloader\downloader.py --name landmarks-regression-retail-0009
 python D:\Programs\openvino_2021.1.110\deployment_tools\tools\model_downloader\downloader.py --name gaze-estimation-adas-0002
 python D:\Programs\openvino_2021.1.110\deployment_tools\tools\model_downloader\downloader.py --name face-detection-adas-0001
@@ -27,6 +27,25 @@ python D:\Programs\openvino_2021.1.110\deployment_tools\tools\model_downloader\d
 
 ## Benchmarks
 *TODO:* Include the benchmark results of running your model on multiple hardwares and multiple model precisions. Your benchmarks can include: model loading time, input/output processing time, model inference time etc.
+#### Face Detection model
+| Precision | Throuput(FPS) | Latency (ms) |
+|---|---|---|
+| FP32 | 35 | 26.45|
+| FP16 | 39 | 24.2 |
+| INT8 | 50 | 17.7 |
+#### Head Pose Estimation model
+| Precision | Throuput(FPS) | Latency (ms) |
+|---|---|---|
+| FP32 | 539 | 1.57|
+| FP16 | 556 | 1.54 |
+| INT8 | 994 | 0.82 |
+
+#### Facial Landmark Detection
+| Precision | Throuput(FPS) | Latency (ms) |
+|---|---|---|
+| FP32 | 1930 | 0.4|
+| FP16 | 1920 | 0.4 |
+| INT8 | 2094 | 0.36 |
 
 ## Results
 *TODO:* Discuss the benchmark results and explain why you are getting the results you are getting. For instance, explain why there is difference in inference time for FP32, FP16 and INT8 models.
