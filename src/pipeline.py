@@ -1,5 +1,6 @@
 import argparse
 import cv2
+import logging
 from input_feeder import InputFeeder
 from mouse_controller import MouseController
 from face_detection import  Face_Detection
@@ -80,6 +81,7 @@ def track_gaze(file, debug):
     feed.load_data()
     (width, height) = feed.dimensions()
     fps = feed.fps()
+    logging.info('Video stream info: width: {}, height: {}, fps: {}'.format(width, height, fps))
 
     mouse_controller = MouseController('low', 'fast')
     
@@ -89,6 +91,7 @@ def track_gaze(file, debug):
 
     for batch in feed.next_batch():
         if(batch is None):
+            logging.info('Video stream completed.')
             break
         
         face_coordinates = get_face_coordinates(batch, width, height)
@@ -157,7 +160,8 @@ def main():
     ge_model = Gaze_Estimation(model_name=gaze_estimation_model, device=device, extensions=extension)
     ge_model.load_model()
 
-    print('Arguments: device: {}, extension: {}, file: {}, setDebug:{}'.format(device, extension, args.i, args.s))
+    logging.basicConfig(filename='debug.log', level=logging.DEBUG)
+    logging.info('Arguments: device: {}, extension: {}, file: {}, setDebug:{}'.format(device, extension, args.i, args.s))
 
     setDebug = False
     if(args.s == '1'):

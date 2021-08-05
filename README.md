@@ -1,6 +1,11 @@
 # Computer Pointer Controller
 
-*TODO:* Write a short introduction to your project
+This project implements controlling computer mouse pointer using a person's eye gaze. This is achieved by impementing a inference pipeline where following is done.
+1. Detect face in the video frame.
+2. Use detected face to estimate head pose.
+3. Use detected face to get landmarks of face (*left eye & right eye*).
+4. Use head pose & two eyes to estimate gaze vector.
+5. Use gaze vector to controll mouse pointer.
 
 ## Project Set Up and Installation
 #### Prerequisite
@@ -9,13 +14,13 @@
   ```
   git clone https://github.com/ranadewa/ComputerPointerContoller.git
   ```
-* python 3.8 or above
+* python 3.8
 * python virtual environment installed.
     ```
     python3 -m pip install --user virtualenv
-    ```
+    ```  
 #### Download models
-* Go to the repository & the folder models.
+* Go to the cloned repository & the directory called **models**.
   ```
   cd <repository_path>/models
   ```
@@ -26,8 +31,13 @@
     python <openvino_model_downloader_path>\downloader.py --name landmarks-regression-retail-0009
     python <openvino_model_downloader_path>\downloader.py --name gaze-estimation-adas-0002
     ```
+* Refer [here]() to get more info on model input & output parameters.
+#### Directory structure
+* The cloned repository has the following structure after models are downloaded.
+  
 #### Setup Virtual Environment
-* Create & activate
+* Come back to the top directory in the repository. There is a requirement.txt file here.
+* Create & activate virtual env.
     ```
     python3 -m venv env
     source env/bin/activate
@@ -36,19 +46,17 @@
     ```
     pip install -r .\requirements.txt
     ```
-*TODO:* Explain the setup procedures to run your project. For instance, this can include your project directory structure, the models you need to download and where to place them etc. Also include details about how to install the dependencies your project requires.
-
-### Models and IO
-|Modle | Input, _format B, C, H, W & BGR color order_ | Output
-|---|---|---|
-| [Face detection](https://docs.openvinotoolkit.org/latest/omz_models_model_face_detection_adas_0001.html)  | Image, name: input, shape: 1, 3, 384, 672  |The net outputs blob with shape: 1, 1, 200, 7 in the format 1, 1, N, 7, where N is the numgber of detected bounding boxes. The results are sorted by confidence in decreasing order. Each detection has the format [image_id, label, conf, x_min, y_min, x_max, y_max] |
-| [Head Pose Estimation](https://docs.openvinotoolkit.org/latest/omz_models_model_head_pose_estimation_adas_0001.html)  | Image, name: data, shape: 1, 3, 60, 60  |Each output contains one float value that represents value in Tait-Bryan angles (yaw, pitch or roll)</br> name: angle_y_fc, shape: 1, 1 - Estimated yaw (in degrees).</br> name: angle_p_fc, shape: 1, 1 - Estimated pitch (in degrees).</br> name: angle_r_fc, shape: 1, 1 - Estimated roll (in degrees).|
-| [Facial Lanmark Detection](https://docs.openvinotoolkit.org/latest/omz_models_model_landmarks_regression_retail_0009.html)| Image, name: data, shape: 1, 3, 48, 48| The net outputs a blob with the shape: 1, 10, containing a row-vector of 10 floating point values for five landmarks coordinates in the form (x0, y0, x1, y1, ..., x4, y4). All the coordinates are normalized to be in range [0, 1]|
-| [Gase Estimation](https://docs.openvinotoolkit.org/latest/omz_models_model_gaze_estimation_adas_0002.html) | Blob, name: left_eye_image, shape: 1, 3, 60, 60 </br> Blob, name: right_eye_image, shape: 1, 3, 60, 60 </br> Blob, name: head_pose_angles, shape: 1, 3 in the format B, C | The net output is a blob with name gaze_vector and the shape: 1, 3, containing Cartesian coordinates of gaze direction vector. Please note that the output vector is not normalizes and has non-unit length.|
-#### Downloading the models
 
 ## Demo
-*TODO:* Explain how to run a basic demo of your model.
+* Go to ```src``` directory.
+    ```
+    cd src
+    ```
+* Run ```pipeline.py``` python script.
+    ```
+    python3.8 pipeline.py -i ../bin/demo.mp4
+    ```
+* When this is run the mouse pointer would be controlled according to the given video.
 
 ## Documentation
 *TODO:* Include any documentation that users might need to better understand your project code. For instance, this is a good place to explain the command line arguments that your project supports.
@@ -74,7 +82,6 @@
 | FP32 | 1930 | 0.4|
 | FP16 | 1920 | 0.4 |
 | INT8 | 2094 | 0.36 |
-
 ## Results
 *TODO:* Discuss the benchmark results and explain why you are getting the results you are getting. For instance, explain why there is difference in inference time for FP32, FP16 and INT8 models.
 
