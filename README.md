@@ -21,10 +21,10 @@
   ```
 * Download the required models in to this folder.
     ```
-    python <openvino_model_downloader_path>\downloader.py --name head-pose-estimation-adas-0001v
+    python <openvino_model_downloader_path>\downloader.py --name face-detection-adas-0001
+    python <openvino_model_downloader_path>\downloader.py --name head-pose-estimation-adas-0001
     python <openvino_model_downloader_path>\downloader.py --name landmarks-regression-retail-0009
     python <openvino_model_downloader_path>\downloader.py --name gaze-estimation-adas-0002
-    python <openvino_model_downloader_path>\downloader.py --name face-detection-adas-0001
     ```
 #### Setup Virtual Environment
 * Create & activate
