@@ -5,7 +5,37 @@
 ## Project Set Up and Installation
 #### Prerequisite
 * OpenVINO 2020.1 Installed machine. Instruction [here](https://docs.openvinotoolkit.org/2020.1/index.html).
-* 
+* Git clone this repository:
+  ```
+  git clone https://github.com/ranadewa/ComputerPointerContoller.git
+  ```
+* python 3.8 or above
+* python virtual environment installed.
+    ```
+    python3 -m pip install --user virtualenv
+    ```
+#### Download models
+* Go to the repository & the folder models.
+  ```
+  cd <repository_path>/models
+  ```
+* Download the required models in to this folder.
+    ```
+    python <openvino_model_downloader_path>\downloader.py --name head-pose-estimation-adas-0001v
+    python <openvino_model_downloader_path>\downloader.py --name landmarks-regression-retail-0009
+    python <openvino_model_downloader_path>\downloader.py --name gaze-estimation-adas-0002
+    python <openvino_model_downloader_path>\downloader.py --name face-detection-adas-0001
+    ```
+#### Setup Virtual Environment
+* Create & activate
+    ```
+    python3 -m venv env
+    source env/bin/activate
+    ```
+* Install prerequisites
+    ```
+    pip install -r .\requirements.txt
+    ```
 *TODO:* Explain the setup procedures to run your project. For instance, this can include your project directory structure, the models you need to download and where to place them etc. Also include details about how to install the dependencies your project requires.
 
 ### Models and IO
@@ -16,12 +46,7 @@
 | [Facial Lanmark Detection](https://docs.openvinotoolkit.org/latest/omz_models_model_landmarks_regression_retail_0009.html)| Image, name: data, shape: 1, 3, 48, 48| The net outputs a blob with the shape: 1, 10, containing a row-vector of 10 floating point values for five landmarks coordinates in the form (x0, y0, x1, y1, ..., x4, y4). All the coordinates are normalized to be in range [0, 1]|
 | [Gase Estimation](https://docs.openvinotoolkit.org/latest/omz_models_model_gaze_estimation_adas_0002.html) | Blob, name: left_eye_image, shape: 1, 3, 60, 60 </br> Blob, name: right_eye_image, shape: 1, 3, 60, 60 </br> Blob, name: head_pose_angles, shape: 1, 3 in the format B, C | The net output is a blob with name gaze_vector and the shape: 1, 3, containing Cartesian coordinates of gaze direction vector. Please note that the output vector is not normalizes and has non-unit length.|
 #### Downloading the models
-```
-python D:\Programs\openvino_2021.1.110\deployment_tools\tools\model_downloader\downloader.py --name head-pose-estimation-adas-0001v
-python D:\Programs\openvino_2021.1.110\deployment_tools\tools\model_downloader\downloader.py --name landmarks-regression-retail-0009
-python D:\Programs\openvino_2021.1.110\deployment_tools\tools\model_downloader\downloader.py --name gaze-estimation-adas-0002
-python D:\Programs\openvino_2021.1.110\deployment_tools\tools\model_downloader\downloader.py --name face-detection-adas-0001
-```
+
 ## Demo
 *TODO:* Explain how to run a basic demo of your model.
 
