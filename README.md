@@ -100,9 +100,9 @@ This project implements controlling computer mouse pointer using a person's eye 
     |  -d | Used to define the device for models to run |
     |-e | CPU extension if necessary|
     |-s | Used to set debug flag. If this is set to 1 ```debug_out.avi``` file is created inside src directory. When debugging, mouse pointer controlling would not be done. |
-* Setting debug flag as mentioned above would create a video. Following images are extracted from it.  
+* Setting debug flag as mentioned above would create a video. It will have the intermediate models visualised. Following images are extracted from it.  
     <img src="images/debug_out1.png" width="400"/>
-    <img src="images/debug_out2.png" width="400"/>
+    <img src="images/debug_out2.png" width="450"/>
 
 ## Benchmarks
 
@@ -126,13 +126,4 @@ This project implements controlling computer mouse pointer using a person's eye 
 | FP16 | 1920 | 0.4 |
 | INT8 | 2094 | 0.36 |
 ## Results
-*TODO:* Discuss the benchmark results and explain why you are getting the results you are getting. For instance, explain why there is difference in inference time for FP32, FP16 and INT8 models.
-
-## Stand Out Suggestions
-This is where you can provide information about the stand out suggestions that you have attempted.
-
-### Async Inference
-If you have used Async Inference in your code, benchmark the results and explain its effects on power and performance of your project.
-
-### Edge Cases
-There will be certain situations that will break your inference flow. For instance, lighting changes or multiple people in the frame. Explain some of the edge cases you encountered in your project and how you solved them to make your project more robust.
+The difference in inference time for different precisions can be explained by the time the CPU would take to do the calculation. Higher the precision, CPU would need more CPU cycles to do the Floating Point Operations(FLOPs). This will result in higher latencies. In the same time, higher precision would yield better accuracy. So inference time & accuracy should be balanced to get the desired output.
