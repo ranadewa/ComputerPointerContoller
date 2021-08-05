@@ -101,8 +101,8 @@ This project implements controlling computer mouse pointer using a person's eye 
     |-e | CPU extension if necessary|
     |-s | Used to set debug flag. If this is set to 1 ```debug_out.avi``` file is created inside src directory. When debugging, mouse pointer controlling would not be done. |
 * Setting debug flag as mentioned above would create a video. It will have the intermediate models visualised. Following images are extracted from it.  
-    <img src="images/debug_out1.png" width="400"/>
-    <img src="images/debug_out2.png" width="450"/>
+    <img src="images/debug_out1.png" width="300"/>
+    <img src="images/debug_out2.png" width="320"/>
 
 ## Benchmarks
 
