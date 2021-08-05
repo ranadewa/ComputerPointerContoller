@@ -1,0 +1,33 @@
+.
+├── bin
+│   └── demo.mp4
+├── models
+│   └── intel
+│       ├── face-detection-adas-0001
+│       │   ├── FP16
+│       │   ├── FP16-INT8
+│       │   └── FP32
+│       ├── gaze-estimation-adas-0002
+│       │   ├── FP16
+│       │   ├── FP16-INT8
+│       │   └── FP32
+│       ├── head-pose-estimation-adas-0001
+│       │   ├── FP16
+│       │   ├── FP16-INT8
+│       │   └── FP32
+│       └── landmarks-regression-retail-0009
+│           ├── FP16
+│           ├── FP16-INT8
+│           └── FP32
+├── README.md
+├── requirements.txt
+├── src
+│   ├── debug_utils.py
+│   ├── face_detection.py
+│   ├── facial_landmarks_detection.py
+│   ├── gaze_estimation.py
+│   ├── head_pose_estimation.py
+│   ├── input_feeder.py
+│   ├── model.py
+│   ├── mouse_controller.py
+│   ├── pipeline.py
