@@ -87,7 +87,7 @@ def track_gaze(file, debug):
     
     if(debug):
         CODEC = cv2.VideoWriter_fourcc(*'DIVX')
-        out = cv2.VideoWriter('out.avi', CODEC, fps, (width,height))
+        out = cv2.VideoWriter('debug_out.avi', CODEC, fps, (width,height))
 
     for batch in feed.next_batch():
         if(batch is None):

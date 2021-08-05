@@ -34,7 +34,41 @@ This project implements controlling computer mouse pointer using a person's eye 
 * Refer [here]() to get more info on model input & output parameters.
 #### Directory structure
 * The cloned repository has the following structure after models are downloaded.
-  
+  ```
+    .
+    ├── bin
+    │   └── demo.mp4
+    ├── models
+    │   └── intel
+    │       ├── face-detection-adas-0001
+    │       │   ├── FP16
+    │       │   ├── FP16-INT8
+    │       │   └── FP32
+    │       ├── gaze-estimation-adas-0002
+    │       │   ├── FP16
+    │       │   ├── FP16-INT8
+    │       │   └── FP32
+    │       ├── head-pose-estimation-adas-0001
+    │       │   ├── FP16
+    │       │   ├── FP16-INT8
+    │       │   └── FP32
+    │       └── landmarks-regression-retail-0009
+    │           ├── FP16
+    │           ├── FP16-INT8
+    │           └── FP32
+    ├── README.md
+    ├── requirements.txt
+    ├── src
+    │   ├── debug_utils.py
+    │   ├── face_detection.py
+    │   ├── facial_landmarks_detection.py
+    │   ├── gaze_estimation.py
+    │   ├── head_pose_estimation.py
+    │   ├── input_feeder.py
+    │   ├── model.py
+    │   ├── mouse_controller.py
+    │   ├── pipeline.py
+  ```
 #### Setup Virtual Environment
 * Come back to the top directory in the repository. There is a requirement.txt file here.
 * Create & activate virtual env.
@@ -59,10 +93,19 @@ This project implements controlling computer mouse pointer using a person's eye 
 * When this is run the mouse pointer would be controlled according to the given video.
 
 ## Documentation
-*TODO:* Include any documentation that users might need to better understand your project code. For instance, this is a good place to explain the command line arguments that your project supports.
+* The pipeline.py takes flollowing arguments.  
+    |flag | Meaning |
+    |---|---|
+    | -i  | Used to point to video file   |
+    |  -d | Used to define the device for models to run |
+    |-e | CPU extension if necessary|
+    |-s | Used to set debug flag. If this is set to 1 ```debug_out.avi``` file is created inside src directory. When debugging, mouse pointer controlling would not be done. |
+* Setting debug flag as mentioned above would create a video. Following images are extracted from it.  
+    <img src="images/debug_out1.png" width="400"/>
+    <img src="images/debug_out2.png" width="400"/>
 
 ## Benchmarks
-*TODO:* Include the benchmark results of running your model on multiple hardwares and multiple model precisions. Your benchmarks can include: model loading time, input/output processing time, model inference time etc.
+
 #### Face Detection model
 | Precision | Throuput(FPS) | Latency (ms) |
 |---|---|---|
