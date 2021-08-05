@@ -28,7 +28,6 @@ This project implements controlling computer mouse pointer using a person's eye 
     python <openvino_model_downloader_path>\downloader.py --name landmarks-regression-retail-0009
     python <openvino_model_downloader_path>\downloader.py --name gaze-estimation-adas-0002
     ```
-* Refer [here]() to get more info on model input & output parameters.
 #### Directory structure
 * The cloned repository has the following structure after models are downloaded.
   ```
