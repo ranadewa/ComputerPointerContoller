@@ -10,17 +10,14 @@ This project implements controlling computer mouse pointer using a person's eye 
 ## Project Set Up and Installation
 #### Prerequisite
 * OpenVINO 2020.1 Installed machine. Instruction [here](https://docs.openvinotoolkit.org/2020.1/index.html).
-* Git clone this repository:
-  ```
-  git clone https://github.com/ranadewa/ComputerPointerContoller.git
-  ```
+
 * python 3.8
 * python virtual environment installed.
     ```
     python3 -m pip install --user virtualenv
     ```  
 #### Download models
-* Go to the cloned repository & the directory called **models**.
+* Go to the directory called **models**.
   ```
   cd <repository_path>/models
   ```
