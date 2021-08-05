@@ -1,2 +1,3 @@
 models/intel/*
 src/__pycache__/*
+test_env/*
