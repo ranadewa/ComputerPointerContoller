@@ -3,6 +3,9 @@
 *TODO:* Write a short introduction to your project
 
 ## Project Set Up and Installation
+#### Prerequisite
+* OpenVINO 2020.1 Installed machine. Instruction [here](https://docs.openvinotoolkit.org/2020.1/index.html).
+* 
 *TODO:* Explain the setup procedures to run your project. For instance, this can include your project directory structure, the models you need to download and where to place them etc. Also include details about how to install the dependencies your project requires.
 
 ### Models and IO
