@@ -2,8 +2,9 @@ import os
 import cv2
 import numpy as np
 from openvino.inference_engine import IENetwork, IECore 
+from model import Model
 
-class Face_Detection():
+class Face_Detection(Model):
     '''
     Class for the Face Detection Model.
     '''
@@ -11,17 +12,7 @@ class Face_Detection():
         '''
         TODO: Use this to set your instance variables.
         '''
-        print(model_name)
-        self.model_name = model_name
-        self.model_bin = os.path.splitext(model_name)[0] + ".bin"
-        self.device = device
-        self.extensions = extensions
-        self.plugin = None
-        self.network = None
-        self.input_blob = None
-        self.output_blob = None
-        self.exec_network = None
-        self.infer_request = None
+        super().__init__(model_name, device, extensions)
 
     def load_model(self):
         '''
