@@ -75,9 +75,12 @@ def get_gaze_vector(left_eye, right_eye, yaw_pitch_roll):
     ge_preprocessed_out = ge_model.preprocess_output(ge_out)
     return ge_preprocessed_out[:2]
 
-def track_gaze(file, debug):
+def track_gaze(input, debug):
 
-    feed=InputFeeder(input_type='video', input_file=file)
+    if input == 'CAM':
+        feed = InputFeeder(input)
+    else:
+        feed=InputFeeder(input_type='video', input_file=input)
     feed.load_data()
     (width, height) = feed.dimensions()
     fps = feed.fps()
