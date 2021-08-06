@@ -78,7 +78,7 @@ def get_gaze_vector(left_eye, right_eye, yaw_pitch_roll):
 def track_gaze(input, debug):
 
     if input == 'CAM':
-        feed = InputFeeder(input)
+        feed = InputFeeder(input_type='cam')
     else:
         feed=InputFeeder(input_type='video', input_file=input)
     feed.load_data()

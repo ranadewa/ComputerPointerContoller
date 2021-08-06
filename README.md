@@ -90,13 +90,17 @@ This project implements controlling computer mouse pointer using a person's eye 
     ```
     python3.8 pipeline.py -i ../bin/demo.mp4
     ```
+* To run with web cam, run
+    ```
+    python3.8 pipeline.py -i 'CAM'
+    ```
 * When this is run the mouse pointer would be controlled according to the given video.
 
 ## Documentation
 * The pipeline.py takes flollowing arguments.  
     |flag | Meaning |
     |---|---|
-    | -i  | Used to point to video file   |
+    | -i  | Used to point to video file  or web cam. If marked as 'CAM' web cam would be taken. If given the video file name, same will be loaded. |
     |  -d | Used to define the device for models to run |
     |-e | CPU extension if necessary|
     |-s | Used to set debug flag. If this is set to 1 ```debug_out.avi``` file is created inside src directory. When debugging, mouse pointer controlling would not be done. |
